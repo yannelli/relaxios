@@ -167,15 +167,3 @@ A protocol is a function `(ctx: UploadContext) => Promise<Result>`, with an opti
 - `task.sent(bytes)`: optional real byte count from the transport.
 
 Call `ctx.confirm(bytes)` when the server acknowledges data, `ctx.save(token)` to store the resume token, and `ctx.onAbort(fn)` to register server-side cancellation.
-
-## Vue
-
-```ts
-import { useUpload } from 'relaxios/vue';
-
-const { start, progress, result, error, pause, resume, abort } = useUpload({ protocol: ietf({ endpoint: '/uploads' }) });
-start(file);
-// progress is a readonly ref with the latest job.progress value
-```
-
-The job is aborted when the component's scope is disposed. `vue` is an optional peer dependency. Reference: [vue.md](vue.md).

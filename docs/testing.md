@@ -26,7 +26,7 @@ Deno.
 
 ```
 test/
-  core.test.ts, progress.test.ts, upload-*.test.ts, vue.test.ts, docs.test.ts
+  core.test.ts, progress.test.ts, upload-*.test.ts, docs.test.ts
   servers/        reference servers used by the upload tests. ietf-server.ts (draft -12), s3-server.ts
   helpers/
   e2e/            Playwright specs and the test page server (import map to dist/)
@@ -115,5 +115,4 @@ aliased to the port's own tunnelling agent class). `unit/regression.test.js` fet
 - `relaxios/upload`: `test/upload-ietf.test.ts` against the draft -12 reference server in
   `test/servers/ietf-server.ts`, `test/upload-s3.test.ts` against a fake S3, and
   `test/e2e/xhr-upload.spec.ts` for `xhrSingle` in browsers.
-- `relaxios/vue`: `test/vue.test.ts`.
 - `test/docs.test.ts` fails if `docs/axios.md` stops saying there are no known differences.

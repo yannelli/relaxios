@@ -9,7 +9,6 @@ HTTP for every JavaScript runtime, built on the platform's own `fetch`, Web Stre
 | `relaxios` | A 2 kB client with the familiar shape (`get`, `post`, `create`, `defaults`, interceptors, `timeout`, `signal`) and fetch-native responses. | [docs/core.md](docs/core.md) |
 | `relaxios/progress` | Download and upload progress for `fetch`. A `TransformStream`, an event reducer with rate and time remaining, and an XHR-backed `fetch` for upload byte counts. | [docs/progress.md](docs/progress.md) |
 | `relaxios/upload` | Resumable chunked uploads over resumable uploads for HTTP (draft -12), S3 multipart or a single XHR request, with pause, resume, retries and server-confirmed progress. | [docs/upload.md](docs/upload.md) |
-| `relaxios/vue` | `useUpload()` composable for Vue 3. | [docs/vue.md](docs/vue.md) |
 
 Each entry is a separate build, and an app that imports only `relaxios/axios` ships only the port.
 
@@ -20,7 +19,7 @@ npm install relaxios
 ```
 
 Runs on Node 20.3+, Bun, Deno, Cloudflare Workers and browsers from the last two years. Types are
-included. `vue` is an optional peer dependency used only by `relaxios/vue`.
+included.
 
 ## Why relaxios instead of axios
 
@@ -168,7 +167,6 @@ relaxios entries a module imports.
 | `ietf()` added to the upload core | 1.45 kB | 1.5 kB |
 | `s3Multipart()` added to the upload core | 0.83 kB | 1.5 kB |
 | `xhrSingle()` added to the upload core (plus `xhrFetch`) | 0.48 kB | 1.5 kB |
-| `relaxios/vue`, own code | 0.31 kB | |
 | upload with every protocol and progress | 4.50 kB | |
 
 The axios 1.20.0 browser build measures 18.8 kB the same way. The port carries the same code

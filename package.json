@@ -67,19 +67,7 @@
       "types": "./dist/upload.d.ts",
       "default": "./dist/upload.js"
     },
-    "./vue": {
-      "types": "./dist/vue.d.ts",
-      "default": "./dist/vue.js"
-    },
     "./package.json": "./package.json"
-  },
-  "peerDependencies": {
-    "vue": "^3.3.0"
-  },
-  "peerDependenciesMeta": {
-    "vue": {
-      "optional": true
-    }
   },
   "scripts": {
     "build": "rm -rf dist && tsdown",
@@ -104,8 +92,7 @@
     "size-limit": "14.0.1",
     "tsdown": "0.23.0",
     "typescript": "7.0.2",
-    "vitest": "5.0.2",
-    "vue": "3.5.43"
+    "vitest": "5.0.2"
   },
   "browser": {
     "./dist/axios.node.js": "./dist/axios.browser.js",

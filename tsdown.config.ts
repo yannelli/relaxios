@@ -26,7 +26,7 @@ const shared: UserConfig = {
   clean: false,
   outExtensions: ({ format }) => ({ js: format === 'cjs' ? '.cjs' : '.js', dts: format === 'cjs' ? '.d.cts' : '.d.ts' }),
   // Subpaths import each other through the package name so every entry ships once.
-  deps: { neverBundle: [/^relaxios(\/|$)/, 'vue'] },
+  deps: { neverBundle: [/^relaxios(\/|$)/] },
 };
 
 export default defineConfig([
@@ -37,7 +37,6 @@ export default defineConfig([
       'axios.node': 'src/axios/index.ts',
       progress: 'src/progress/index.ts',
       upload: 'src/upload/index.ts',
-      vue: 'src/vue/index.ts',
     },
     format: 'esm',
     platform: 'node',

@@ -1,21 +1,66 @@
 [
-  { "name": "core", "path": "dist/index.js", "import": "http", "gzip": true, "limit": "3 kB" },
-  { "name": "progress (all exports)", "path": "dist/progress.js", "import": "*", "gzip": true, "limit": "1.5 kB" },
-  { "name": "upload core", "path": "dist/upload.js", "import": "{ upload }", "ignore": [
+  {
+    "name": "core",
+    "path": "dist/index.js",
+    "import": "http",
+    "gzip": true,
+    "limit": "3 kB"
+  },
+  {
+    "name": "progress (all exports)",
+    "path": "dist/progress.js",
+    "import": "*",
+    "gzip": true,
+    "limit": "1.5 kB"
+  },
+  {
+    "name": "upload core",
+    "path": "dist/upload.js",
+    "import": "{ upload }",
+    "ignore": [
       "relaxios/progress"
-    ], "gzip": true, "limit": "3 kB" },
-  { "name": "upload + ietf", "path": "dist/upload.js", "import": "{ upload, ietf }", "ignore": [
+    ],
+    "gzip": true,
+    "limit": "3 kB"
+  },
+  {
+    "name": "upload + ietf",
+    "path": "dist/upload.js",
+    "import": "{ upload, ietf }",
+    "ignore": [
       "relaxios/progress"
-    ], "gzip": true },
-  { "name": "upload + s3Multipart", "path": "dist/upload.js", "import": "{ upload, s3Multipart }", "ignore": [
+    ],
+    "gzip": true
+  },
+  {
+    "name": "upload + s3Multipart",
+    "path": "dist/upload.js",
+    "import": "{ upload, s3Multipart }",
+    "ignore": [
       "relaxios/progress"
-    ], "gzip": true },
-  { "name": "upload + xhrSingle", "path": "dist/upload.js", "import": "{ upload, xhrSingle }", "ignore": [
+    ],
+    "gzip": true
+  },
+  {
+    "name": "upload + xhrSingle",
+    "path": "dist/upload.js",
+    "import": "{ upload, xhrSingle }",
+    "ignore": [
       "relaxios/progress"
-    ], "gzip": true },
-  { "name": "vue adapter (own code)", "path": "dist/vue.js", "import": "{ useUpload }", "ignore": [
-      "relaxios/upload", "vue"
-    ], "gzip": true },
-  { "name": "total: upload + all adapters + progress", "path": "dist/upload.js", "import": "*", "gzip": true },
-  { "name": "axios compat, browser build (esm)", "path": "dist/axios.browser.js", "import": "axios", "gzip": true, "limit": "23 kB" }
+    ],
+    "gzip": true
+  },
+  {
+    "name": "total: upload + all adapters + progress",
+    "path": "dist/upload.js",
+    "import": "*",
+    "gzip": true
+  },
+  {
+    "name": "axios compat, browser build (esm)",
+    "path": "dist/axios.browser.js",
+    "import": "axios",
+    "gzip": true,
+    "limit": "23 kB"
+  }
 ]
