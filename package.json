@@ -8,6 +8,9 @@
     "url": "git+https://github.com/yannelli/relaxios.git"
   },
   "homepage": "https://github.com/yannelli/relaxios#readme",
+  "bugs": {
+    "url": "https://github.com/yannelli/relaxios/issues"
+  },
   "keywords": [
     "axios",
     "fetch",
@@ -16,7 +19,6 @@
     "progress",
     "upload",
     "resumable",
-    "tus",
     "s3",
     "typescript"
   ],
@@ -30,6 +32,9 @@
     "LICENSE",
     "NOTICE"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -84,7 +89,10 @@
     "test:e2e": "playwright test",
     "test:axios-suite": "npm --prefix test/axios run test",
     "size": "node scripts/size-check.mjs",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "test:release": "node --test test/release.test.mjs test/release-integration.test.mjs",
+    "release:dry-run": "node scripts/release.mjs --dry-run",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",

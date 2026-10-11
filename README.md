@@ -155,6 +155,10 @@ The toolchain needs Node 22.12+. The differential suite needs `bun` and `deno` o
 `BUN` / `DENO` set) and `npx playwright install --with-deps` for the browser runs. Layout,
 environment variables and how to add a differential case are in [docs/testing.md](docs/testing.md).
 
+Releases are automatic. Conventional commit titles on `main` pick the next semver version, and
+the Release workflow tags it and publishes to npm (`beta` and `alpha` branches publish
+prereleases). See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## License
 
 MIT. `relaxios/axios` is a port of axios 1.20.0 (MIT), see [NOTICE](NOTICE).

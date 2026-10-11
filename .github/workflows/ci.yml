@@ -1,9 +1,13 @@
 name: CI
 
+# Pull requests run these checks; pushes to release branches run them through release.yml.
 on:
-  push:
-    branches: [main]
   pull_request:
+    branches: [main, beta, alpha]
+  workflow_call:
+
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -28,7 +32,9 @@ jobs:
       # The package imports its own subpaths by name; Bun and Deno resolve that through node_modules.
       - run: ln -s .. node_modules/relaxios
       - run: npm test
+      - run: npm run test:release
       - run: node scripts/smoke.mjs
+      - run: npm pack --dry-run
 
   size:
     runs-on: ubuntu-latest

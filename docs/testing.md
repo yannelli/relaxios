@@ -13,11 +13,14 @@ and how the other entries are tested.
 | `npm run test:axios-suite` | axios 1.20.0's `tests/unit` against the port. | `npm --prefix test/axios ci`. |
 | `npm --prefix test/axios run test:browser` | axios 1.20.0's `tests/browser` in the three browsers. | same, plus Playwright browsers. |
 | `npm --prefix test/mock-adapter test` | axios-mock-adapter 2.1.0's suite against `dist/axios.node.cjs`. | `npm run build`, `npm --prefix test/mock-adapter ci`. |
+| `npm run test:release` | Release script tests (version selection, notes, tags, prereleases). | git. |
 | `npm run size` | Size table and budgets. | `npm run build`. |
 | `node scripts/smoke.mjs` | Imports the build and runs one request, one progress stream and one upload. Also runs under `bun` and `deno run -A`. | `npm run build`, `node_modules/relaxios -> ..` (CI creates it). |
 
-CI (`.github/workflows/ci.yml`) runs all of them. `test` runs on Node 22 and 24, then `size`,
-`e2e`, `axios-suite`, `mock-adapter`, and `smoke` on Node 20, Bun and Deno.
+CI (`.github/workflows/ci.yml`) runs all of them on every pull request, and the Release workflow
+runs it again on each push to `main`, `beta` or `alpha` before it publishes. `test` runs on Node
+22 and 24, then `size`, `e2e`, `axios-suite`, `mock-adapter`, and `smoke` on Node 20, Bun and
+Deno.
 
 ## Layout
 
