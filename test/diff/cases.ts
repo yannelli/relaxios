@@ -8,7 +8,7 @@ import { transportCases } from './cases/transport';
 export { custom } from './cases/shared';
 export type { Case, Env, Runtime } from './cases/shared';
 
-/** Every differential case. Each runs unchanged against real axios and against fetchwire/axios. */
+/** Every differential case. Each runs unchanged against real axios and against relaxios/axios. */
 export const cases: Record<string, Case> = { ...coreCases, ...responseCases, ...bodyCases, ...optionCases, ...transportCases };
 
 // Cases that cannot even be expressed in a runtime, with the reason. Everything else runs everywhere.

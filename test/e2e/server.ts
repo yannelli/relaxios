@@ -12,16 +12,16 @@ const page = `<!doctype html>
 <meta charset="utf-8">
 <script type="importmap">
 { "imports": {
-  "fetchwire": "/dist/index.js",
-  "fetchwire/axios": "/dist/axios.browser.js",
-  "fetchwire/progress": "/dist/progress.js",
-  "fetchwire/upload": "/dist/upload.js",
+  "relaxios": "/dist/index.js",
+  "relaxios/axios": "/dist/axios.browser.js",
+  "relaxios/progress": "/dist/progress.js",
+  "relaxios/upload": "/dist/upload.js",
   "axios": "/vendor/axios.js"
 } }
 </script>
 <script type="module">
   const [core, compat, progress, upload, axios] = await Promise.all(
-    ['fetchwire', 'fetchwire/axios', 'fetchwire/progress', 'fetchwire/upload', 'axios'].map((m) => import(m)),
+    ['relaxios', 'relaxios/axios', 'relaxios/progress', 'relaxios/upload', 'axios'].map((m) => import(m)),
   );
   Object.assign(window, { core, compat: compat.default, progress, upload, axios: axios.default });
   window.ready = true;

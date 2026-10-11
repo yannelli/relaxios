@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { MAX_PARTS, memoryStore, MIN_PART_SIZE, s3Multipart, upload, type S3MultipartOptions, type UploadProgress } from 'fetchwire/upload';
+import { MAX_PARTS, memoryStore, MIN_PART_SIZE, s3Multipart, upload, type S3MultipartOptions, type UploadProgress } from 'relaxios/upload';
 import { afterEach, describe, expect, it } from 'vitest';
 import { startS3Server } from './servers/s3-server';
 

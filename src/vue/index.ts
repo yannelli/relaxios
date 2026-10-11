@@ -1,4 +1,4 @@
-import { upload, type UploadJob, type UploadOptions, type UploadProgress } from 'fetchwire/upload';
+import { upload, type UploadJob, type UploadOptions, type UploadProgress } from 'relaxios/upload';
 import { getCurrentScope, onScopeDispose, readonly, shallowRef, type Ref } from 'vue';
 
 export interface UseUpload<R> {

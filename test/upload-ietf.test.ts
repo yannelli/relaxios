@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { ietf, memoryStore, upload, type UploadProgress } from 'fetchwire/upload';
+import { ietf, memoryStore, upload, type UploadProgress } from 'relaxios/upload';
 import { afterEach, describe, expect, it } from 'vitest';
 import { startIetfServer, type IetfServerOptions } from './servers/ietf-server';
 

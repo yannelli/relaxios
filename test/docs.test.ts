@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-describe('docs/migration.md', () => {
-  const guide = readFileSync(new URL('../docs/migration.md', import.meta.url), 'utf8');
+describe('docs/axios.md', () => {
+  const guide = readFileSync(new URL('../docs/axios.md', import.meta.url), 'utf8');
 
   it('lists no known differences, because the differential suite requires none', () => {
     expect(guide).toMatch(/^## Known differences\n\nNone\./m);

@@ -26,7 +26,7 @@ const shared: UserConfig = {
   clean: false,
   outExtensions: ({ format }) => ({ js: format === 'cjs' ? '.cjs' : '.js', dts: format === 'cjs' ? '.d.cts' : '.d.ts' }),
   // Subpaths import each other through the package name so every entry ships once.
-  deps: { neverBundle: [/^fetchwire(\/|$)/, 'vue'] },
+  deps: { neverBundle: [/^relaxios(\/|$)/, 'vue'] },
 };
 
 export default defineConfig([

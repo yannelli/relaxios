@@ -1,6 +1,6 @@
 import { test as base, expect } from '@playwright/test';
 
-// Opens the test page and waits until fetchwire, its subpaths and real axios are loaded on window.
+// Opens the test page and waits until relaxios, its subpaths and real axios are loaded on window.
 export const test = base.extend({
   page: async ({ page }, use) => {
     await page.goto('/');

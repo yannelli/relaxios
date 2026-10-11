@@ -1,8 +1,25 @@
 {
-  "name": "fetchwire",
+  "name": "relaxios",
   "version": "0.1.0",
-  "description": "Fetch-native HTTP client with an axios-compatible API, stream progress, and resumable uploads.",
+  "description": "A TypeScript port of axios 1.20.0 on native fetch, plus a small core client, stream progress and resumable uploads. No dependencies.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yannelli/relaxios.git"
+  },
+  "homepage": "https://github.com/yannelli/relaxios#readme",
+  "keywords": [
+    "axios",
+    "fetch",
+    "http",
+    "client",
+    "progress",
+    "upload",
+    "resumable",
+    "tus",
+    "s3",
+    "typescript"
+  ],
   "type": "module",
   "sideEffects": false,
   "engines": {

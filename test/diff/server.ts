@@ -118,7 +118,7 @@ export async function startDiffServer(): Promise<DiffServer> {
   let socketPath: string | undefined;
   let socketServer: Server | undefined;
   if (process.platform !== 'win32') {
-    socketPath = join(tmpdir(), `fetchwire-diff-${process.pid}-${Date.now()}.sock`);
+    socketPath = join(tmpdir(), `relaxios-diff-${process.pid}-${Date.now()}.sock`);
     socketServer = createHttpServer(handler);
     await listen(socketServer, socketPath).catch(() => {
       socketPath = undefined;

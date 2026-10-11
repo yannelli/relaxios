@@ -1,7 +1,7 @@
 // Worker entry bundled for workerd (miniflare): each fetch runs one case on both clients.
 // The request URL carries `env` as JSON and `case` as the case name.
 import realAxios from 'axios';
-import compat from 'fetchwire/axios';
+import compat from 'relaxios/axios';
 import type { Env } from '../cases';
 import { caseNames, runCase } from '../run';
 

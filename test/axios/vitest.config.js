@@ -55,8 +55,8 @@ const shared = {
       { find: /^(?:\.\.\/)+lib\/(.+)\.js$/, replacement: port('$1.ts') },
       // The port ships its own CONNECT tunnelling agent; the tests' `https-proxy-agent` import gets that class.
       { find: /^https-proxy-agent$/, replacement: port('adapters/http/HttpsProxyAgent.ts') },
-      { find: /^fetchwire$/, replacement: src('index.ts') },
-      { find: /^fetchwire\/(.*)$/, replacement: src('$1/index.ts') },
+      { find: /^relaxios$/, replacement: src('index.ts') },
+      { find: /^relaxios\/(.*)$/, replacement: src('$1/index.ts') },
     ],
   },
   server: {

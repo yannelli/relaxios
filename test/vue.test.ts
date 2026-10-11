@@ -1,5 +1,5 @@
-import { useUpload } from 'fetchwire/vue';
-import type { Protocol } from 'fetchwire/upload';
+import { useUpload } from 'relaxios/vue';
+import type { Protocol } from 'relaxios/upload';
 import { effectScope, isReadonly, nextTick, watch } from 'vue';
 import { describe, expect, it } from 'vitest';
 

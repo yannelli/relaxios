@@ -24,7 +24,7 @@ export function defineDiffSuite(runtime: Runtime, adapters: Array<string | undef
   beforeAll(async () => {
     server = await startDiffServer();
     env = { ...server.env, runtime };
-    compat = process.env.DIFF_SELF ? realAxios : (await import('fetchwire/axios')).default;
+    compat = process.env.DIFF_SELF ? realAxios : (await import('relaxios/axios')).default;
   }, 60_000);
 
   afterAll(async () => {
@@ -33,7 +33,7 @@ export function defineDiffSuite(runtime: Runtime, adapters: Array<string | undef
     if (path) console.log(`diff report written to ${path}`);
   });
 
-  describe(`differential: axios 1.20.0 vs fetchwire/axios (${runtime}; adapters ${adapters.map((a) => a ?? 'default').join(', ')})`, () => {
+  describe(`differential: axios 1.20.0 vs relaxios/axios (${runtime}; adapters ${adapters.map((a) => a ?? 'default').join(', ')})`, () => {
     for (const name of caseNames()) {
       it(
         name,

@@ -1,4 +1,4 @@
-import http, { create, HttpError, isCancel, mergeConfig, buildURL } from 'fetchwire';
+import http, { create, HttpError, isCancel, mergeConfig, buildURL } from 'relaxios';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { echo, json, serve, type TestServer } from './helpers/server';
 

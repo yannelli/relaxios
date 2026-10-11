@@ -1,5 +1,5 @@
 import { gzipSync } from 'node:zlib';
-import { contentLength, progress, reducer, throttle, trackResponse, type ProgressEvent } from 'fetchwire/progress';
+import { contentLength, progress, reducer, throttle, trackResponse, type ProgressEvent } from 'relaxios/progress';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { serve, type TestServer } from './helpers/server';
 

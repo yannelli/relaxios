@@ -1,5 +1,5 @@
 // Child script for Bun and Deno: `bun test/diff/runtimes/child.ts`, `deno run -A --node-modules-dir=manual test/diff/runtimes/child.ts`.
-// Needs `npm run build` first: both import the published entry points by name through node_modules/fetchwire -> ..
+// Needs `npm run build` first: both import the published entry points by name through node_modules/relaxios -> ..
 import realAxios from 'axios';
 import http from 'node:http';
 import https from 'node:https';
@@ -18,7 +18,7 @@ const hooks: RunHooks = {
 };
 
 // DIFF_SELF=1 compares real axios against itself (observer stability check); it needs no dist/.
-const compat = process.env.DIFF_SELF ? realAxios : (await import('fetchwire/axios')).default;
+const compat = process.env.DIFF_SELF ? realAxios : (await import('relaxios/axios')).default;
 const axiosResults = await runAll(realAxios, env, adapters, hooks);
 const compatResults = await runAll(compat, env, adapters, hooks);
 // Bun drops buffered stdout on process.exit, so wait for the write to flush first.

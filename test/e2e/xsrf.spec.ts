@@ -1,6 +1,6 @@
 import { expect, OTHER_ORIGIN, test } from './fixtures';
 
-// Each case runs with real axios (XHR adapter) and fetchwire/axios in the same page and compares.
+// Each case runs with real axios (XHR adapter) and relaxios/axios in the same page and compares.
 const run = (page: any, code: string) =>
   page.evaluate(async (code: string) => {
     const w = window as any;

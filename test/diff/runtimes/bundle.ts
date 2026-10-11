@@ -17,7 +17,7 @@ export async function bundle(entry: string, conditionNames: string[], alias: Rec
   const result = await build({
     input: entry,
     platform: 'browser',
-    // tsconfig paths would map fetchwire/* to src/; the published entry points in dist/ are wanted.
+    // tsconfig paths would map relaxios/* to src/; the published entry points in dist/ are wanted.
     tsconfig: false,
     resolve: { conditionNames, aliasFields: [['browser']], alias },
     plugins: [nodeStubs],

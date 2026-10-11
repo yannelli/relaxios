@@ -26,7 +26,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       # The package imports its own subpaths by name; Bun and Deno resolve that through node_modules.
-      - run: ln -s .. node_modules/fetchwire
+      - run: ln -s .. node_modules/relaxios
       - run: npm test
       - run: node scripts/smoke.mjs
 
@@ -100,7 +100,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: ln -s .. node_modules/fetchwire
+      - run: ln -s .. node_modules/relaxios
       - if: matrix.runtime == 'node20'
         uses: actions/setup-node@v4
         with:

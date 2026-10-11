@@ -1,9 +1,9 @@
 # Resumable uploads
 
-`fetchwire/upload` sends a file in chunks and reports progress that the server has confirmed. It can pause, resume, retry and cancel, and it can continue an upload after a page reload.
+`relaxios/upload` sends a file in chunks and reports progress that the server has confirmed. It can pause, resume, retry and cancel, and it can continue an upload after a page reload.
 
 ```ts
-import { upload, ietf } from 'fetchwire/upload';
+import { upload, ietf } from 'relaxios/upload';
 
 const job = upload(file, { protocol: ietf({ endpoint: '/uploads' }), chunkSize: 1 << 20 });
 for await (const p of job.progress) render(p.confirmed / p.total);
@@ -71,9 +71,17 @@ upload(file, { protocol, store: localStore });
 
 The token is removed when the job finishes or is aborted. It stays when the job fails, so the next job can continue.
 
+### Errors
+
+A failed request rejects the job with an `UploadError` carrying `status`, `response`, `retry` (the classification the job used) and `retryAfter` (ms, from `Retry-After`). A custom protocol can throw its own `UploadError` with `retry: true` or `false` to override the default classification.
+
+### Exports
+
+`upload`, `memoryStore`, `UploadError`, `ietf`, `parseLimits`, `INTEROP_VERSION`, `s3Multipart`, `MIN_PART_SIZE`, `MAX_PARTS`, `xhrSingle`, and the types `UploadOptions`, `UploadJob`, `UploadProgress`, `UploadState`, `UploadResult`, `UploadContext`, `Task`, `Protocol`, `ResumeStore`, `HeadersOption`, `IetfOptions`, `UploadLimits`, `S3MultipartOptions`, `S3Upload`, `S3Part`, `XhrSingleOptions`.
+
 ## `ietf()`: resumable uploads for HTTP (draft -12)
 
-`ietf({ endpoint, method?, headers?, credentials? })` implements the client side of [draft-ietf-httpbis-resumable-upload-12](https://www.ietf.org/archive/id/draft-ietf-httpbis-resumable-upload-12.html). Every request carries `Upload-Draft-Interop-Version: 9`.
+`ietf({ endpoint, method?, headers?, credentials? })` implements the client side of [draft-ietf-httpbis-resumable-upload-12](https://www.ietf.org/archive/id/draft-ietf-httpbis-resumable-upload-12.html). Every request carries `Upload-Draft-Interop-Version: 9`. `headers` is a `HeadersInit` or a function returning one (sync or async), called before every request, so a short-lived token can be refreshed.
 
 1. **Creation (Section 4.2, careful creation from 10.2).** `POST endpoint` with `Upload-Complete: ?0`, `Upload-Length`, `Content-Type` from the file, and `Content-Disposition: inline; filename=...`. The body is empty. The upload URL comes from the `Location` header of the final response. An empty file is sent as one creation request with `Upload-Complete: ?1`.
 2. **Append (Section 4.4).** `PATCH` with `Content-Type: application/partial-upload`, `Upload-Offset`, and `Upload-Complete: ?1` on the last chunk. Chunks respect `max-append-size` and `min-append-size` from `Upload-Limit`.
@@ -163,11 +171,11 @@ Call `ctx.confirm(bytes)` when the server acknowledges data, `ctx.save(token)` t
 ## Vue
 
 ```ts
-import { useUpload } from 'fetchwire/vue';
+import { useUpload } from 'relaxios/vue';
 
 const { start, progress, result, error, pause, resume, abort } = useUpload({ protocol: ietf({ endpoint: '/uploads' }) });
 start(file);
 // progress is a readonly ref with the latest job.progress value
 ```
 
-The job is aborted when the component's scope is disposed. `vue` is an optional peer dependency.
+The job is aborted when the component's scope is disposed. `vue` is an optional peer dependency. Reference: [vue.md](vue.md).

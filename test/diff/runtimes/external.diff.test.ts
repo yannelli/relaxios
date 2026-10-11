@@ -1,5 +1,5 @@
 // Runs the differential matrix in Bun, Deno and workerd (through miniflare).
-// Precondition: `npm run build`, since every child imports fetchwire/axios from dist/ by package name.
+// Precondition: `npm run build`, since every child imports relaxios/axios from dist/ by package name.
 import { execFile, execFileSync } from 'node:child_process';
 import { existsSync, symlinkSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -27,7 +27,7 @@ const available = (bin: string) => {
 };
 
 function ensureSelfLink() {
-  const link = root + 'node_modules/fetchwire';
+  const link = root + 'node_modules/relaxios';
   if (!existsSync(link)) symlinkSync('..', link, 'dir');
 }
 
@@ -70,7 +70,7 @@ function compareAll(runtime: string, adapters: Array<string | undefined>, get: (
 
 const CHILD_ADAPTERS = [undefined, 'http', 'fetch'];
 
-describe.skipIf(!available(BUN))('differential: axios 1.20.0 vs fetchwire/axios (bun)', () => {
+describe.skipIf(!available(BUN))('differential: axios 1.20.0 vs relaxios/axios (bun)', () => {
   let out: ChildOutput | undefined;
   beforeAll(async () => {
     out = await runChild(BUN, [child], { ...env, runtime: 'bun' }, CHILD_ADAPTERS);
@@ -79,7 +79,7 @@ describe.skipIf(!available(BUN))('differential: axios 1.20.0 vs fetchwire/axios 
   compareAll('bun', CHILD_ADAPTERS, () => out);
 });
 
-describe.skipIf(!available(DENO))('differential: axios 1.20.0 vs fetchwire/axios (deno)', () => {
+describe.skipIf(!available(DENO))('differential: axios 1.20.0 vs relaxios/axios (deno)', () => {
   let out: ChildOutput | undefined;
   beforeAll(async () => {
     out = await runChild(DENO, ['run', '-A', '--node-modules-dir=manual', '--unstable-sloppy-imports', child], { ...env, runtime: 'deno' }, CHILD_ADAPTERS);
@@ -90,13 +90,13 @@ describe.skipIf(!available(DENO))('differential: axios 1.20.0 vs fetchwire/axios
 
 const WORKERD_ADAPTERS = [undefined, 'fetch'];
 
-describe('differential: axios 1.20.0 vs fetchwire/axios (workerd)', () => {
+describe('differential: axios 1.20.0 vs relaxios/axios (workerd)', () => {
   let mf: any;
   const results = { axios: {} as Results, compat: {} as Results };
   beforeAll(async () => {
     const { Miniflare } = await import('miniflare');
-    // DIFF_SELF=1 aliases fetchwire/axios to axios so the observer can be checked before dist/ exists.
-    const script = await bundle(fileURLToPath(new URL('./worker.ts', import.meta.url)), WORKERD_CONDITIONS, process.env.DIFF_SELF ? { 'fetchwire/axios': 'axios' } : {});
+    // DIFF_SELF=1 aliases relaxios/axios to axios so the observer can be checked before dist/ exists.
+    const script = await bundle(fileURLToPath(new URL('./worker.ts', import.meta.url)), WORKERD_CONDITIONS, process.env.DIFF_SELF ? { 'relaxios/axios': 'axios' } : {});
     mf = new Miniflare({ modules: true, script, compatibilityDate: '2025-01-01' });
     await mf.ready;
   }, 120_000);

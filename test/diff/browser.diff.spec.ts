@@ -7,7 +7,7 @@ import { bundle, BROWSER_CONDITIONS } from './runtimes/bundle';
 import { startDiffServer, type DiffServer } from './server';
 
 // Runs the matrix inside chromium, firefox and webkit on the e2e page (test/e2e/server.ts), which loads
-// real axios (/vendor/axios.js) and fetchwire/axios (/dist/axios.browser.js). Needs `npm run build` first.
+// real axios (/vendor/axios.js) and relaxios/axios (/dist/axios.browser.js). Needs `npm run build` first.
 // WebKit locally needs LD_PRELOAD=<scratchpad>/debs/root/usr/lib/aarch64-linux-gnu/libgstcodecparsers-1.0.so.0.
 const ADAPTERS: Array<string | undefined> = [undefined, 'xhr', 'fetch', 'http'];
 
@@ -38,7 +38,7 @@ test.afterAll(async () => {
   writeReport(runtime, ADAPTERS, results.axios, results.compat, true);
 });
 
-test.describe('differential: axios 1.20.0 vs fetchwire/axios (browser)', () => {
+test.describe('differential: axios 1.20.0 vs relaxios/axios (browser)', () => {
   for (const name of caseNames()) {
     test(name, async () => {
       test.setTimeout(120_000);

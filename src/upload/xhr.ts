@@ -1,4 +1,4 @@
-import { xhrFetch } from 'fetchwire/progress';
+import { xhrFetch } from 'relaxios/progress';
 import { headersOf, httpError, toResult, type HeadersOption } from './http';
 import type { Protocol, UploadContext, UploadResult } from './types';
 

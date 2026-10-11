@@ -10,7 +10,7 @@ export interface Env {
   runtime: Runtime;
 }
 
-// Each case runs unchanged against real axios and against fetchwire/axios.
+// Each case runs unchanged against real axios and against relaxios/axios.
 export type Case = (ax: any, env: Env) => Promise<unknown>;
 
 /** Marks a case result as a plain value to compare instead of a response. */

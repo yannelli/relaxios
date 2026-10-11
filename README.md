@@ -1,112 +1,160 @@
-# fetchwire
+# relaxios
 
-A small HTTP client built on web APIs: `fetch`, Web Streams and `AbortController`. It ships an axios 1.20.0 port with the same API and behavior, so apps switch by changing the import. Progress is a separate module, and uploads get server-confirmed, resumable progress through chunked uploads.
+HTTP for every JavaScript runtime, built on the platform's own `fetch`, Web Streams and
+`AbortController`. No runtime dependencies, ESM first, TypeScript strict.
 
-> `fetchwire` is a working name. Rename it in `package.json`, `tsconfig.json` (`paths`), `vitest.config.ts`, `tsdown.config.ts` and the docs.
+| Entry | What it is | Docs |
+| --- | --- | --- |
+| `relaxios/axios` | A TypeScript port of axios 1.20.0 with the same API, types and behavior, checked against real axios in every runtime. | [docs/axios.md](docs/axios.md) |
+| `relaxios` | A 2 kB client with the familiar shape (`get`, `post`, `create`, `defaults`, interceptors, `timeout`, `signal`) and fetch-native responses. | [docs/core.md](docs/core.md) |
+| `relaxios/progress` | Download and upload progress for `fetch`. A `TransformStream`, an event reducer with rate and time remaining, and an XHR-backed `fetch` for upload byte counts. | [docs/progress.md](docs/progress.md) |
+| `relaxios/upload` | Resumable chunked uploads over resumable uploads for HTTP (draft -12), S3 multipart or a single XHR request, with pause, resume, retries and server-confirmed progress. | [docs/upload.md](docs/upload.md) |
+| `relaxios/vue` | `useUpload()` composable for Vue 3. | [docs/vue.md](docs/vue.md) |
 
-## Modules
+Each entry is a separate build, and an app that imports only `relaxios/axios` ships only the port.
 
-| Import | What it is |
-| --- | --- |
-| `fetchwire` | Core client: `request()`, method helpers, `create()`, `defaults`, interceptors, errors, timeout and abort. |
-| `fetchwire/axios` | A port of axios 1.20.0 with the same API, types and behavior in every runtime. See [docs/migration.md](docs/migration.md). |
-| `fetchwire/progress` | Progress `TransformStream`, event reducer, throttle, and an XHR-backed `fetch` for upload byte counts. |
-| `fetchwire/upload` | Resumable chunked uploads: `upload()`, `ietf()`, `s3Multipart()`, `xhrSingle()`. See [docs/upload.md](docs/upload.md). |
-| `fetchwire/vue` | `useUpload()` composable. |
+## Install
 
-Each subpath is a separate entry. An app that does not import `fetchwire/upload` ships none of its code. `fetchwire/axios` has a browser build (`fetch` transport, `XMLHttpRequest` when needed) and a Node build (`node:http` transport), chosen through the same export conditions as axios.
-
-## Core
-
-```ts
-import http from 'fetchwire';
-
-const api = http.create({ baseURL: '/api', timeout: 20_000 });
-api.interceptors.request.use((config) => config);
-const { data } = await api.get<User>('/me', { params: { ids: [1, 2] }, signal });
+```sh
+npm install relaxios
 ```
 
-- Request interceptors run newest first, response interceptors oldest first (axios order).
-- `timeout` and `signal` are combined with `AbortSignal.any`. Errors are `HttpError` with `code` `ETIMEDOUT`, `ERR_CANCELED`, `ERR_NETWORK`, `ERR_BAD_REQUEST` (4xx) or `ERR_BAD_RESPONSE` (5xx and bad JSON).
-- Bodies: plain objects and arrays become JSON. `FormData`, `URLSearchParams`, `Blob`, buffers, strings and `ReadableStream` pass through.
-- `responseType`: `json`, `text`, `blob`, `arrayBuffer`, `formData`, `stream`. By default JSON is parsed when the Content-Type says so.
-- Params repeat keys for arrays (`ids=1&ids=2`). Pass `paramsSerializer` for other formats, or use `fetchwire/axios` for bracket format.
-- `fetch` option: any fetch-compatible function, for example `xhrFetch()` from `fetchwire/progress`.
+Runs on Node 20.3+, Bun, Deno, Cloudflare Workers and browsers from the last two years. Types are
+included. `vue` is an optional peer dependency used only by `relaxios/vue`.
+
+## axios, without axios
+
+```ts
+import axios, { AxiosError, isAxiosError, type AxiosInstance } from 'relaxios/axios';
+
+const api = axios.create({ baseURL: 'https://api.example.com', timeout: 10_000 });
+api.interceptors.response.use(undefined, (error) => Promise.reject(error));
+
+const { data } = await api.get<User[]>('/users', { params: { role: 'admin' } });
+```
+
+`relaxios/axios` is a file-by-file port of axios 1.20.0's `lib/` to TypeScript, and every export,
+config option, header class, error code, cancel primitive and type is there. That includes the
+Node-only options (`httpAgent`, `proxy`, `maxRedirects`, `socketPath`, `maxRate`,
+`responseType: 'stream'`). Libraries that plug into axios keep working, and axios-mock-adapter's
+own test suite passes unchanged.
+
+What changes under the hood is the plumbing. The package has no dependencies (follow-redirects,
+proxy-from-env, https-proxy-agent and form-data are reimplemented inside it), and in browsers
+requests go through `fetch` by default, with an `XMLHttpRequest` stand-in as `response.request`
+that reports the same values a real one would. A real `XMLHttpRequest` is used when the config
+asks for it (`adapter: 'xhr'`, `onUploadProgress`) or when the global one is a mock. The full
+adapter table is in [docs/axios.md](docs/axios.md).
+
+"Same behavior" is checked by a differential suite. It runs 445 cases against real axios 1.20.0
+and against the port in Node, Bun, Deno, Node with jsdom, Chromium, Firefox, WebKit and
+Cloudflare's workerd, with `adapter` unset and with each explicit adapter value, and compares
+status, headers, `data`, `request`, error codes and messages deeply. It requires 0 differences.
+axios's own `tests/unit` and `tests/browser` suites also run against the port with no skipped
+tests. See [docs/testing.md](docs/testing.md).
+
+## Core client
+
+```ts
+import http, { HttpError } from 'relaxios';
+
+const api = http.create({ baseURL: '/api', timeout: 20_000 });
+api.interceptors.request.use((config) => ({ ...config, headers: { ...config.headers, 'x-trace': id() } }));
+
+try {
+  const { data, headers } = await api.get<User>('/me', { params: { ids: [1, 2] }, signal });
+} catch (e) {
+  if (e instanceof HttpError && e.code === 'ERR_BAD_REQUEST') console.log(e.status, e.response?.data);
+}
+```
+
+The core client keeps the shape of axios and the primitives of `fetch`. `headers` is a `Headers`
+instance, `request` is the `RequestInit` that was sent, `responseType: 'stream'` returns the
+body `ReadableStream`, and `fetchOptions` passes anything through to `fetch`. Reference in
+[docs/core.md](docs/core.md).
 
 ## Progress
 
 ```ts
-import { progress, trackResponse } from 'fetchwire/progress';
+import { progress, trackResponse } from 'relaxios/progress';
 
 const res = await fetch('/big.bin');
 const body = res.body!.pipeThrough(progress((e) => render(e.ratio), res));
 ```
 
-Events have `loaded`, `total`, `ratio`, `rate` (bytes/s), `estimated` (seconds left), `lengthComputable` and `bytes`. When `Content-Encoding` is set and is not `identity`, `lengthComputable` is false, because decoded bytes can be more than `Content-Length`. `loaded` is clamped to `total`. Events are throttled to animation frames in visible pages and to 100 ms elsewhere.
+Events carry `loaded`, `total`, `ratio`, `rate` (bytes/s), `estimated` (seconds left),
+`lengthComputable` and `bytes`. Events are throttled to animation frames in visible pages and to
+100 ms elsewhere. For upload counts in browsers, `xhrFetch({ onUpload })` is a fetch-compatible
+function backed by `XMLHttpRequest`. Reference in [docs/progress.md](docs/progress.md).
 
-For upload byte counts in browsers, `xhrFetch({ onUpload })` is a fetch-compatible function backed by XHR:
-
-```ts
-await http.post('/files', file, { fetch: xhrFetch({ onUpload: (e) => render(e.ratio) }) });
-```
-
-These counts are bytes given to the network stack. For progress the server has confirmed, use `fetchwire/upload`.
-
-## Uploads
+## Resumable uploads
 
 ```ts
-import { upload, ietf } from 'fetchwire/upload';
+import { upload, ietf } from 'relaxios/upload';
 
 const job = upload(file, { protocol: ietf({ endpoint: '/uploads' }), chunkSize: 1 << 20 });
 for await (const p of job.progress) render(p.confirmed / p.total);
-const result = await job;
+const { status, data } = await job;
 ```
 
-`confirmed` counts bytes the server acknowledged. `estimated` is smoothed from the measured rate and never goes past `confirmed` plus the chunk in flight. Jobs pause, resume, retry with backoff, continue from the server offset after errors, and cancel on the server on `abort()`. Details, server setup and CORS rules: [docs/upload.md](docs/upload.md).
+`confirmed` counts bytes the server acknowledged, and `estimated` is smoothed from the measured
+rate but never passes `confirmed` plus the chunk in flight. Jobs pause and resume, retry with
+backoff, continue from the server's offset after errors, survive page reloads with a resume
+store, and cancel on the server on `abort()`. Protocols are `ietf()`
+(draft-ietf-httpbis-resumable-upload-12), `s3Multipart()` (presigned parts), `xhrSingle()` (one
+request), or your own. Reference, server setup, CORS rules and the draft -12 notes are in
+[docs/upload.md](docs/upload.md).
 
 ## Sizes
 
-min+gzip, measured by `npm run size` (size-limit with rolldown). "Own code" excludes the other fetchwire modules it imports.
+min+gzip, measured by `npm run size` (size-limit with rolldown). "Own code" excludes the other
+relaxios entries a module imports.
 
-| Module | Size | Budget |
+| Entry | Size | Budget |
 | --- | ---: | ---: |
-| core (`import http from 'fetchwire'`) | 1.91 kB | 3 kB |
-| axios port, browser build (`dist/axios.browser.js`) | 22.73 kB | 23 kB (was 2.5 kB before the full port; parity with axios 1.20.0 comes first) |
-| axios port, Node build (`dist/axios.node.js`, Node built-ins external) | 39.12 kB | no budget |
-| progress, all exports | 1.31 kB | 1.5 kB |
-| upload core (`upload()`) | 1.46 kB | 3 kB |
-| `ietf()` added to upload core | 1.45 kB | 1.5 kB |
-| `s3Multipart()` added to upload core | 0.83 kB | 1.5 kB |
-| `xhrSingle()` added to upload core (plus `xhrFetch` from progress) | 0.48 kB | 1.5 kB |
-| vue adapter, own code | 0.31 kB | |
-| Total for upload with all adapters and progress | 4.50 kB | |
+| `relaxios` (core client) | 1.91 kB | 3 kB |
+| `relaxios/axios`, browser build | 22.73 kB | 23 kB |
+| `relaxios/axios`, Node build (Node built-ins external) | 39.12 kB | none |
+| `relaxios/progress` (all exports) | 1.31 kB | 1.5 kB |
+| `relaxios/upload` core (`upload()`) | 1.46 kB | 3 kB |
+| `ietf()` added to the upload core | 1.45 kB | 1.5 kB |
+| `s3Multipart()` added to the upload core | 0.83 kB | 1.5 kB |
+| `xhrSingle()` added to the upload core (plus `xhrFetch`) | 0.48 kB | 1.5 kB |
+| `relaxios/vue`, own code | 0.31 kB | |
+| upload with every protocol and progress | 4.50 kB | |
 
-For comparison, the axios 1.20.0 browser build measures 18.8 kB the same way. The port carries the
-same code plus the `XMLHttpRequest` stand-in and the fetch transport for the xhr profile.
-
-Runtime dependencies: none. `vue` is an optional peer dependency of `fetchwire/vue`.
+The axios 1.20.0 browser build measures 18.8 kB the same way. The port carries the same code
+plus the `XMLHttpRequest` stand-in and the fetch transport for the xhr profile.
 
 ## Runtimes
 
-Chrome, Firefox and Safari from the last two years, Node 20.3+ (for `AbortSignal.any`), Bun, Deno, Cloudflare Workers and Capacitor webviews. Browsers without Web Streams are out of scope. In Cloudflare Workers, do not set `credentials` or `withCredentials`.
+| Runtime | `relaxios/axios` transport | Notes |
+| --- | --- | --- |
+| Chrome, Firefox, Safari (last two years) | `fetch` with the XHR stand-in, or a real `XMLHttpRequest` on request | Browsers without Web Streams are out of scope. |
+| Node 20.3+ | `node:http`, `node:https`, `node:http2` | `AbortSignal.any` needs 20.3. |
+| Bun, Deno | `node:http` | Same http profile as axios. |
+| Cloudflare Workers, other edge runtimes | `fetch` | Do not set `credentials` or `withCredentials`. |
+| jsdom, happy-dom | real `XMLHttpRequest` | The mock XHR is used, as with axios. |
+| React Native | browser build | Same as axios's `react-native` condition. |
 
 ## Development
 
 ```sh
 npm install
-npm run build        # tsdown -> dist/
+npm run build                 # tsdown -> dist/
 npm run typecheck
-npm test             # vitest: unit, upload servers, differential vs axios 1.20.0 in Node, jsdom, Bun, Deno and workerd
-npm run test:axios-suite   # axios 1.20.0's own test suite against the port (browsers: npm --prefix test/axios run test:browser)
-npm --prefix test/mock-adapter test   # axios-mock-adapter 2.1.0 suite (needs the build)
-npm run size         # size-limit plus per-adapter budgets
-npx playwright install --with-deps
-npm run test:e2e     # Chromium, Firefox, WebKit: progress, XSRF, uploads and the differential suite (run the build first)
-node scripts/smoke.mjs   # also: bun scripts/smoke.mjs, deno run -A scripts/smoke.mjs
+npm test                      # unit tests, upload servers, differential suite in Node, jsdom, Bun, Deno and workerd
+npm run test:e2e              # Playwright. progress, XSRF, uploads and the differential suite in Chromium, Firefox and WebKit
+npm run test:axios-suite      # axios 1.20.0's tests/unit against the port (browsers: npm --prefix test/axios run test:browser)
+npm --prefix test/mock-adapter test   # axios-mock-adapter 2.1.0's suite against the build
+npm run size                  # size table and budgets
+node scripts/smoke.mjs        # also: bun scripts/smoke.mjs, deno run -A scripts/smoke.mjs
 ```
 
-The toolchain (vitest, tsdown, size-limit) needs Node 22.12+, and the differential suite needs `bun` and `deno` on the PATH (or `BUN`/`DENO` set). The package itself runs on Node 20.3+, which CI checks with the smoke script.
+The toolchain needs Node 22.12+. The differential suite needs `bun` and `deno` on the PATH (or
+`BUN` / `DENO` set) and `npx playwright install --with-deps` for the browser runs. Layout,
+environment variables and how to add a differential case are in [docs/testing.md](docs/testing.md).
 
 ## License
 
-MIT. Parts of `fetchwire/axios` follow axios 1.20.0 behavior and type definitions (MIT); see [NOTICE](NOTICE).
+MIT. `relaxios/axios` is a port of axios 1.20.0 (MIT), see [NOTICE](NOTICE).

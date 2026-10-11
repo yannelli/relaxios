@@ -3,10 +3,10 @@
 import { Buffer } from 'node:buffer';
 import { createServer } from 'node:http';
 import process from 'node:process';
-import http, { create } from 'fetchwire';
-import axios from 'fetchwire/axios';
-import { progress } from 'fetchwire/progress';
-import { ietf, upload } from 'fetchwire/upload';
+import http, { create } from 'relaxios';
+import axios from 'relaxios/axios';
+import { progress } from 'relaxios/progress';
+import { ietf, upload } from 'relaxios/upload';
 
 const uploads = new Map();
 const server = createServer(async (req, res) => {

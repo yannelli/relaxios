@@ -93,7 +93,7 @@ test('xhrSingle upload adapter: estimated follows bytes sent, confirmed follows 
   expect(out.events.at(-1)).toMatchObject({ state: 'done', confirmed: SIZE });
 });
 
-test('xhrFetch from fetchwire/progress gives core users upload progress', async ({ page }) => {
+test('xhrFetch from relaxios/progress gives core users upload progress', async ({ page }) => {
   const out = await page.evaluate(async (size) => {
     const w = window as any;
     const events: any[] = [];
