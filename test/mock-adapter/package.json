@@ -1,0 +1,14 @@
+{
+  "name": "fetchwire-mock-adapter-suite",
+  "private": true,
+  "description": "Runs the axios-mock-adapter 2.1.0 test suite unchanged against fetchwire/axios.",
+  "scripts": {
+    "test": "node run.mjs"
+  },
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "fast-deep-equal": "^3.1.3",
+    "is-buffer": "^2.0.5",
+    "mocha": "^10.7.0"
+  }
+}

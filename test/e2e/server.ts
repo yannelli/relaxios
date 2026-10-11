@@ -13,7 +13,7 @@ const page = `<!doctype html>
 <script type="importmap">
 { "imports": {
   "fetchwire": "/dist/index.js",
-  "fetchwire/axios": "/dist/axios.js",
+  "fetchwire/axios": "/dist/axios.browser.js",
   "fetchwire/progress": "/dist/progress.js",
   "fetchwire/upload": "/dist/upload.js",
   "axios": "/vendor/axios.js"
@@ -46,6 +46,16 @@ async function readSlowly(req: IncomingMessage, delay: number) {
 }
 
 createServer(async (req, res) => {
+  try {
+    await route(req, res);
+  } catch (e) {
+    // An aborted request body must not take the whole server down.
+    if (!res.headersSent) res.writeHead(500);
+    res.end(String(e));
+  }
+}).listen(PORT, () => console.log(`e2e server on http://localhost:${PORT}`));
+
+async function route(req: IncomingMessage, res: ServerResponse) {
   const url = new URL(req.url!, 'http://x');
   const q = url.searchParams;
   cors(req, res);
@@ -90,4 +100,4 @@ createServer(async (req, res) => {
     return void res.writeHead(Number(q.get('status') || 200), { 'content-type': 'application/json' }).end(body);
   }
   res.writeHead(404).end();
-}).listen(PORT, () => console.log(`e2e server on http://localhost:${PORT}`));
+}

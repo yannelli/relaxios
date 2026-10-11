@@ -19,8 +19,23 @@
       "default": "./dist/index.js"
     },
     "./axios": {
-      "types": "./dist/axios.d.ts",
-      "default": "./dist/axios.js"
+      "types": "./dist/axios.node.d.ts",
+      "bun": {
+        "require": "./dist/axios.node.cjs",
+        "default": "./dist/axios.node.js"
+      },
+      "react-native": {
+        "require": "./dist/axios.browser.cjs",
+        "default": "./dist/axios.browser.js"
+      },
+      "browser": {
+        "require": "./dist/axios.browser.cjs",
+        "default": "./dist/axios.browser.js"
+      },
+      "default": {
+        "require": "./dist/axios.node.cjs",
+        "default": "./dist/axios.node.js"
+      }
     },
     "./progress": {
       "types": "./dist/progress.d.ts",
@@ -45,10 +60,12 @@
     }
   },
   "scripts": {
-    "build": "tsdown",
+    "build": "rm -rf dist && tsdown",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:diff": "vitest run test/diff/runtimes",
     "test:e2e": "playwright test",
+    "test:axios-suite": "npm --prefix test/axios run test",
     "size": "node scripts/size-check.mjs",
     "smoke": "node scripts/smoke.mjs"
   },
@@ -57,10 +74,16 @@
     "@size-limit/preset-small-lib": "14.0.1",
     "@types/node": "24.19.0",
     "axios": "1.20.0",
+    "jsdom": "^30.1.2",
+    "miniflare": "^4.20260730.0",
     "size-limit": "14.0.1",
     "tsdown": "0.23.0",
     "typescript": "7.0.2",
     "vitest": "5.0.2",
     "vue": "3.5.43"
+  },
+  "browser": {
+    "./dist/axios.node.js": "./dist/axios.browser.js",
+    "./dist/axios.node.cjs": "./dist/axios.browser.cjs"
   }
 }

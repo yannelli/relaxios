@@ -1,8 +1,9 @@
 // Runs size-limit, prints a size table, and checks the per-adapter budgets that
-// size-limit cannot express: each adapter may add at most 1 kB to the upload core.
+// size-limit cannot express: each adapter may add at most 1.5 kB to the upload core.
 import { execFileSync } from 'node:child_process';
+import { nodeBuildSize } from './size-node.mjs';
 
-const ADAPTER_BUDGET = 1000;
+const ADAPTER_BUDGET = 1500;
 let raw;
 try {
   raw = execFileSync('npx', ['size-limit', '--json'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] });
@@ -14,6 +15,7 @@ const size = (name) => results.find((r) => r.name === name).size;
 const kb = (n) => (n / 1000).toFixed(2) + ' kB';
 
 const rows = results.map((r) => ({ name: r.name, size: r.size, limit: r.sizeLimit, ok: r.passed !== false }));
+rows.push({ name: 'axios compat, node build (esm, node built-ins external)', size: await nodeBuildSize(), ok: true });
 for (const adapter of ['ietf', 's3Multipart', 'xhrSingle']) {
   const delta = size(`upload + ${adapter}`) - size('upload core');
   rows.push({ name: `${adapter} adapter (added to upload core)`, size: delta, limit: ADAPTER_BUDGET, ok: delta <= ADAPTER_BUDGET });

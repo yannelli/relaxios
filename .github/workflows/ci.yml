@@ -18,9 +18,15 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           cache: npm
+      - uses: oven-sh/setup-bun@v2
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
       - run: npm ci
       - run: npm run typecheck
       - run: npm run build
+      # The package imports its own subpaths by name; Bun and Deno resolve that through node_modules.
+      - run: ln -s .. node_modules/fetchwire
       - run: npm test
       - run: node scripts/smoke.mjs
 
@@ -37,6 +43,7 @@ jobs:
       - run: npm run size
 
   e2e:
+    name: browsers (progress, xsrf, xhr upload, differential)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -48,6 +55,35 @@ jobs:
       - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run build
       - run: npm run test:e2e
+
+  axios-suite:
+    name: axios 1.20.0 test suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm --prefix test/axios ci
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm --prefix test/axios test
+      - run: npm --prefix test/axios run test:browser
+
+  mock-adapter:
+    name: axios-mock-adapter suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm --prefix test/mock-adapter ci
+      - run: npm --prefix test/mock-adapter test
 
   runtimes:
     name: smoke (${{ matrix.runtime }})
@@ -64,7 +100,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      # The package imports its own subpaths by name; make that resolvable for Deno.
       - run: ln -s .. node_modules/fetchwire
       - if: matrix.runtime == 'node20'
         uses: actions/setup-node@v4

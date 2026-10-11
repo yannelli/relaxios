@@ -35,8 +35,8 @@ test('compat onDownloadProgress uses fetch streams and axios event fields', asyn
   const result = await page.evaluate(async (size) => {
     const w = window as any;
     let xhrOpened = 0;
-    const open = XMLHttpRequest.prototype.open;
-    XMLHttpRequest.prototype.open = function (this: XMLHttpRequest, ...args: any[]) {
+    const open = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.send = function (this: XMLHttpRequest, ...args: any[]) {
       xhrOpened++;
       return (open as any).apply(this, args);
     };
@@ -45,7 +45,7 @@ test('compat onDownloadProgress uses fetch streams and axios event fields', asyn
       responseType: 'arraybuffer',
       onDownloadProgress: (e: any) => events.push(e),
     });
-    XMLHttpRequest.prototype.open = open;
+    XMLHttpRequest.prototype.send = open;
     return { xhrOpened, bytes: res.data.byteLength, last: { ...events.at(-1), event: undefined }, count: events.length };
   }, SIZE);
   expect(result.xhrOpened).toBe(0);

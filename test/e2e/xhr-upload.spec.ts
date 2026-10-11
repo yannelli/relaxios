@@ -8,8 +8,8 @@ test('compat onUploadProgress uses XHR and reports real byte counts', async ({ p
     const results: Record<string, any> = {};
     for (const name of ['axios', 'compat']) {
       let xhrOpened = 0;
-      const open = XMLHttpRequest.prototype.open;
-      XMLHttpRequest.prototype.open = function (this: XMLHttpRequest, ...args: any[]) {
+      const open = XMLHttpRequest.prototype.send;
+      XMLHttpRequest.prototype.send = function (this: XMLHttpRequest, ...args: any[]) {
         xhrOpened++;
         return (open as any).apply(this, args);
       };
@@ -17,7 +17,7 @@ test('compat onUploadProgress uses XHR and reports real byte counts', async ({ p
       const res = await w[name].post('/upload?delay=2', new Blob([new Uint8Array(size)]), {
         onUploadProgress: (e: any) => events.push({ ...e, event: e.event?.type }),
       });
-      XMLHttpRequest.prototype.open = open;
+      XMLHttpRequest.prototype.send = open;
       results[name] = { xhrOpened, data: res.data, events };
     }
     return results;
@@ -31,20 +31,20 @@ test('compat onUploadProgress uses XHR and reports real byte counts', async ({ p
   expect(compat.events.at(-1)).toMatchObject({ loaded: SIZE, total: SIZE, progress: 1, upload: true, lengthComputable: true, event: 'progress' });
   expect(Object.keys(compat.events[0]).sort()).toEqual(Object.keys(axios.events[0]).sort());
   expect(compat.data.size).toBe(axios.data.size);
-  // Known difference: browser axios labels Blob bodies x-www-form-urlencoded; compat uses blob.type (as axios on Node does).
-  expect([compat.data.type, axios.data.type]).toEqual(['application/octet-stream', 'application/x-www-form-urlencoded']);
+  // Browser axios labels Blob bodies x-www-form-urlencoded (the POST default header wins); the port does the same.
+  expect(compat.data.type).toBe(axios.data.type);
 });
 
 test('requests without upload progress use fetch', async ({ page }) => {
   const opened = await page.evaluate(async () => {
     let xhrOpened = 0;
-    const open = XMLHttpRequest.prototype.open;
-    XMLHttpRequest.prototype.open = function (this: XMLHttpRequest, ...args: any[]) {
+    const open = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.send = function (this: XMLHttpRequest, ...args: any[]) {
       xhrOpened++;
       return (open as any).apply(this, args);
     };
     await (window as any).compat.post('/upload', new Blob(['x']));
-    XMLHttpRequest.prototype.open = open;
+    XMLHttpRequest.prototype.send = open;
     return xhrOpened;
   });
   expect(opened).toBe(0);

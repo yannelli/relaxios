@@ -1,6 +1,6 @@
 # fetchwire
 
-A small HTTP client built only on web APIs: `fetch`, Web Streams, `AbortController`, and `XMLHttpRequest` for one upload-progress path. It gives the common axios API, so most apps can switch by changing the import. Progress is a separate module, and uploads get server-confirmed, resumable progress through chunked uploads.
+A small HTTP client built on web APIs: `fetch`, Web Streams and `AbortController`. It ships an axios 1.20.0 port with the same API and behavior, so apps switch by changing the import. Progress is a separate module, and uploads get server-confirmed, resumable progress through chunked uploads.
 
 > `fetchwire` is a working name. Rename it in `package.json`, `tsconfig.json` (`paths`), `vitest.config.ts`, `tsdown.config.ts` and the docs.
 
@@ -9,12 +9,12 @@ A small HTTP client built only on web APIs: `fetch`, Web Streams, `AbortControll
 | Import | What it is |
 | --- | --- |
 | `fetchwire` | Core client: `request()`, method helpers, `create()`, `defaults`, interceptors, errors, timeout and abort. |
-| `fetchwire/axios` | axios-compatible default export and types. See [docs/migration.md](docs/migration.md). |
+| `fetchwire/axios` | A port of axios 1.20.0 with the same API, types and behavior in every runtime. See [docs/migration.md](docs/migration.md). |
 | `fetchwire/progress` | Progress `TransformStream`, event reducer, throttle, and an XHR-backed `fetch` for upload byte counts. |
 | `fetchwire/upload` | Resumable chunked uploads: `upload()`, `ietf()`, `s3Multipart()`, `xhrSingle()`. See [docs/upload.md](docs/upload.md). |
 | `fetchwire/vue` | `useUpload()` composable. |
 
-Each subpath is a separate entry. An app that does not import `fetchwire/upload` ships none of its code.
+Each subpath is a separate entry. An app that does not import `fetchwire/upload` ships none of its code. `fetchwire/axios` has a browser build (`fetch` transport, `XMLHttpRequest` when needed) and a Node build (`node:http` transport), chosen through the same export conditions as axios.
 
 ## Core
 
@@ -71,15 +71,18 @@ min+gzip, measured by `npm run size` (size-limit with rolldown). "Own code" excl
 | Module | Size | Budget |
 | --- | ---: | ---: |
 | core (`import http from 'fetchwire'`) | 1.91 kB | 3 kB |
-| axios compat, own code (with XHR transport wiring) | 4.06 kB | 2.5 kB, **over** |
+| axios port, browser build (`dist/axios.browser.js`) | 22.73 kB | 23 kB (was 2.5 kB before the full port; parity with axios 1.20.0 comes first) |
+| axios port, Node build (`dist/axios.node.js`, Node built-ins external) | 39.12 kB | no budget |
 | progress, all exports | 1.31 kB | 1.5 kB |
 | upload core (`upload()`) | 1.46 kB | 3 kB |
-| `ietf()` added to upload core | 1.45 kB | 1 kB, **over** |
-| `s3Multipart()` added to upload core | 0.83 kB | 1 kB |
-| `xhrSingle()` added to upload core (plus `xhrFetch` from progress) | 0.48 kB | 1 kB |
+| `ietf()` added to upload core | 1.45 kB | 1.5 kB |
+| `s3Multipart()` added to upload core | 0.83 kB | 1.5 kB |
+| `xhrSingle()` added to upload core (plus `xhrFetch` from progress) | 0.48 kB | 1.5 kB |
 | vue adapter, own code | 0.31 kB | |
-| **Total for an axios-compat app** (core + compat + progress parts) | 6.32 kB | axios 1.20.0 browser build: 18.8 kB |
 | Total for upload with all adapters and progress | 4.50 kB | |
+
+For comparison, the axios 1.20.0 browser build measures 18.8 kB the same way. The port carries the
+same code plus the `XMLHttpRequest` stand-in and the fetch transport for the xhr profile.
 
 Runtime dependencies: none. `vue` is an optional peer dependency of `fetchwire/vue`.
 
@@ -93,14 +96,16 @@ Chrome, Firefox and Safari from the last two years, Node 20.3+ (for `AbortSignal
 npm install
 npm run build        # tsdown -> dist/
 npm run typecheck
-npm test             # vitest: unit, differential (vs axios 1.20.0), upload servers
+npm test             # vitest: unit, upload servers, differential vs axios 1.20.0 in Node, jsdom, Bun, Deno and workerd
+npm run test:axios-suite   # axios 1.20.0's own test suite against the port (browsers: npm --prefix test/axios run test:browser)
+npm --prefix test/mock-adapter test   # axios-mock-adapter 2.1.0 suite (needs the build)
 npm run size         # size-limit plus per-adapter budgets
 npx playwright install --with-deps
-npm run test:e2e     # Chromium, Firefox, WebKit (run the build first)
+npm run test:e2e     # Chromium, Firefox, WebKit: progress, XSRF, uploads and the differential suite (run the build first)
 node scripts/smoke.mjs   # also: bun scripts/smoke.mjs, deno run -A scripts/smoke.mjs
 ```
 
-The toolchain (vitest, tsdown, size-limit) needs Node 22.12+. The package itself runs on Node 20.3+, which CI checks with the smoke script.
+The toolchain (vitest, tsdown, size-limit) needs Node 22.12+, and the differential suite needs `bun` and `deno` on the PATH (or `BUN`/`DENO` set). The package itself runs on Node 20.3+, which CI checks with the smoke script.
 
 ## License
 

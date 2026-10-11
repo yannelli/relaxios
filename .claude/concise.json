@@ -1,0 +1,8 @@
+{
+  "ignoreGlobs": [
+    "test/mock-adapter/**",
+    "test/axios/**",
+    "**/test/mock-adapter/**",
+    "**/test/axios/**"
+  ]
+}

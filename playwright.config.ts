@@ -2,8 +2,8 @@ import { defineConfig, devices } from '@playwright/test';
 
 // Needs `npm run build` first: the test page loads dist/ through an import map.
 export default defineConfig({
-  testDir: 'test/e2e',
-  testMatch: '*.spec.ts',
+  testDir: 'test',
+  testMatch: ['e2e/*.spec.ts', 'diff/*.spec.ts'],
   timeout: 30_000,
   reporter: process.env.CI ? 'github' : 'list',
   use: { baseURL: 'http://localhost:4173' },
