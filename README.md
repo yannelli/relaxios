@@ -5,7 +5,7 @@ HTTP for every JavaScript runtime, built on the platform's own `fetch`, Web Stre
 
 | Entry | What it is | Docs |
 | --- | --- | --- |
-| `relaxios/axios` | A TypeScript port of axios 1.20.0 with the same API, types and behavior, checked against real axios in every runtime. | [docs/axios.md](docs/axios.md) |
+| `relaxios/axios` | A drop-in replacement for axios 1.20.0 with the same API, types and behavior, checked against real axios in every runtime, with no dependencies. | [docs/axios.md](docs/axios.md) |
 | `relaxios` | A 2 kB client with the familiar shape (`get`, `post`, `create`, `defaults`, interceptors, `timeout`, `signal`) and fetch-native responses. | [docs/core.md](docs/core.md) |
 | `relaxios/progress` | Download and upload progress for `fetch`. A `TransformStream`, an event reducer with rate and time remaining, and an XHR-backed `fetch` for upload byte counts. | [docs/progress.md](docs/progress.md) |
 | `relaxios/upload` | Resumable chunked uploads over resumable uploads for HTTP (draft -12), S3 multipart or a single XHR request, with pause, resume, retries and server-confirmed progress. | [docs/upload.md](docs/upload.md) |
@@ -22,36 +22,84 @@ npm install relaxios
 Runs on Node 20.3+, Bun, Deno, Cloudflare Workers and browsers from the last two years. Types are
 included. `vue` is an optional peer dependency used only by `relaxios/vue`.
 
-## axios, without axios
+## Why relaxios instead of axios
 
-```ts
-import axios, { AxiosError, isAxiosError, type AxiosInstance } from 'relaxios/axios';
+- **One package instead of 27.** axios 1.20.0 depends on follow-redirects, form-data,
+  proxy-from-env and https-proxy-agent, and installing it adds 27 packages. relaxios has no
+  dependencies; that behavior is reimplemented inside it. Fewer packages means less to audit and
+  fewer supply-chain updates to chase.
+- **The same behavior, checked on every change.** A differential suite runs 445 cases against
+  real axios 1.20.0 and against relaxios in Node, Bun, Deno, Node with jsdom, Chromium, Firefox,
+  WebKit and Cloudflare's workerd, with every adapter value, and requires 0 differences in
+  status, headers, `data`, `request`, error codes and messages. axios's own `tests/unit` and
+  `tests/browser` suites and axios-mock-adapter's suite also pass with no skipped tests. See
+  [docs/testing.md](docs/testing.md).
+- **TypeScript source.** The port is typed file by file, and the exported types are the axios
+  type names.
+- **More in the same package when you need it.** Stream progress, resumable uploads with
+  server-confirmed progress, and a 2 kB fetch client for new code, each in its own entry, so
+  you only ship what you import.
 
-const api = axios.create({ baseURL: 'https://api.example.com', timeout: 10_000 });
-api.interceptors.response.use(undefined, (error) => Promise.reject(error));
+Trade-offs: the browser build is 22.73 kB min+gzip against 18.8 kB for axios, because it
+carries an `XMLHttpRequest` stand-in so browsers can use `fetch` with axios-identical responses.
+The port follows the axios 1.20.0 API; features added in later axios releases arrive when the
+port is updated.
 
-const { data } = await api.get<User[]>('/users', { params: { role: 'admin' } });
-```
+## Switching from axios
 
-`relaxios/axios` is a file-by-file port of axios 1.20.0's `lib/` to TypeScript, and every export,
-config option, header class, error code, cancel primitive and type is there. That includes the
-Node-only options (`httpAgent`, `proxy`, `maxRedirects`, `socketPath`, `maxRate`,
-`responseType: 'stream'`). Libraries that plug into axios keep working, and axios-mock-adapter's
-own test suite passes unchanged.
+1. Install relaxios and remove axios:
 
-What changes under the hood is the plumbing. The package has no dependencies (follow-redirects,
-proxy-from-env, https-proxy-agent and form-data are reimplemented inside it), and in browsers
-requests go through `fetch` by default, with an `XMLHttpRequest` stand-in as `response.request`
-that reports the same values a real one would. A real `XMLHttpRequest` is used when the config
-asks for it (`adapter: 'xhr'`, `onUploadProgress`) or when the global one is a mock. The full
-adapter table is in [docs/axios.md](docs/axios.md).
+   ```sh
+   npm install relaxios
+   ```
 
-"Same behavior" is checked by a differential suite. It runs 445 cases against real axios 1.20.0
-and against the port in Node, Bun, Deno, Node with jsdom, Chromium, Firefox, WebKit and
-Cloudflare's workerd, with `adapter` unset and with each explicit adapter value, and compares
-status, headers, `data`, `request`, error codes and messages deeply. It requires 0 differences.
-axios's own `tests/unit` and `tests/browser` suites also run against the port with no skipped
-tests. See [docs/testing.md](docs/testing.md).
+   ```sh
+   npm uninstall axios
+   ```
+
+2. Change the import. Everything else stays the same: the default instance, `create`,
+   interceptors, `AxiosError`, `CancelToken`, `AxiosHeaders`, the config and the types.
+
+   ```ts
+   import axios, { AxiosError, isAxiosError, type AxiosInstance } from 'relaxios/axios';
+   ```
+
+   With CommonJS, `require('relaxios/axios')` returns the callable default instance, as
+   `require('axios')` does.
+
+3. If a dependency imports `axios` itself (axios-mock-adapter, axios-retry, generated API
+   SDKs), alias `axios` so every import gets relaxios. The same alias lets you keep
+   `from 'axios'` in your own code.
+
+   Vite and Vitest (`vite.config.ts`):
+
+   ```ts
+   resolve: { alias: [{ find: /^axios$/, replacement: 'relaxios/axios' }] }
+   ```
+
+   webpack:
+
+   ```js
+   resolve: { alias: { axios$: 'relaxios/axios' } }
+   ```
+
+   Jest:
+
+   ```js
+   moduleNameMapper: { '^axios$': 'relaxios/axios' }
+   ```
+
+   TypeScript, when imports keep saying `axios` (`tsconfig.json`):
+
+   ```json
+   "paths": { "axios": ["./node_modules/relaxios/dist/axios.node.d.ts"] }
+   ```
+
+   Plain Node without a bundler has no alias, so those dependencies load the real axios
+   package. Keep axios installed for them in that case.
+
+How the port is put together (adapters, the `fetch` transport with its `XMLHttpRequest`
+stand-in, builds, runtimes) is in [docs/axios.md](docs/axios.md).
 
 ## Core client
 

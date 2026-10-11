@@ -23,43 +23,38 @@ public repositories, so while `yannelli/relaxios` is private the package has non
 
 ## First publish
 
-npm trusted publishing needs an existing package, so `0.1.0` is published by hand. The first
-workflow run tags `v0.1.0`, creates the GitHub release with `relaxios-0.1.0.tgz` attached, and
-then fails at `npm publish`. This failure is expected.
+The first version goes through the workflow too. Only the npm side is set up by hand.
 
-1. Log in with an account that has 2FA (npm CLI 11.5.1 or newer):
+1. On npmjs.com, create the package `relaxios`. npm reserves the name with a `0.0.0-stage`
+   placeholder version.
+2. In the package **Settings**, under **Trusted publishing**, add a GitHub Actions publisher:
+
+   | Field | Value |
+   | --- | --- |
+   | Organization or user | `yannelli` |
+   | Repository | `relaxios` |
+   | Workflow filename | `release.yml` |
+   | Environment | empty |
+
+   The CLI equivalent:
 
    ```sh
-   npm login
-   npm whoami
+   npm trust github relaxios --repo yannelli/relaxios --file release.yml --allow-publish
    ```
 
-2. Publish the tarball the workflow built:
-
-   ```sh
-   gh release download v0.1.0 -R yannelli/relaxios -p relaxios-0.1.0.tgz
-   npm publish relaxios-0.1.0.tgz
-   ```
-
-3. Run the workflow again. The npm step finds 0.1.0 and passes.
+3. Run the **Release** workflow within 2 days, or the trust entry expires. Its npm step
+   publishes the current version through OIDC and validates the entry.
 
    ```sh
    gh workflow run release.yml -R yannelli/relaxios
    ```
 
-4. Trust the release workflow when a `feat:` or `fix:` commit is ready to merge. A new trust
-   entry expires unless a publish through it succeeds within 2 days, and the release from that
-   commit is the first publish through OIDC.
+4. In the package **Settings**, set **Publishing access** to require 2FA and disallow tokens.
+   The workflow publishes without a token.
 
-   ```sh
-   npm trust github relaxios --repo yannelli/relaxios --file release.yml --allow-publish
-   npm trust list relaxios
-   ```
-
-   If the entry expires, revoke it and run `npm trust github` again.
-
-5. After that release appears on npm, open the package **Settings** on npmjs.com and set
-   **Publishing access** to require 2FA and disallow tokens.
+If a run fails at `npm publish`, the tarball is already attached to the GitHub release.
+`gh release download v<version> -R yannelli/relaxios -p 'relaxios-*.tgz'` and
+`npm publish <file>` finish it by hand, and the next run then skips the npm step.
 
 ## Renaming the workflow
 
@@ -68,6 +63,12 @@ to another workflow, replace the entry:
 
 ```sh
 npm trust list relaxios
+```
+
+```sh
 npm trust revoke relaxios --id=<trust-id>
+```
+
+```sh
 npm trust github relaxios --repo yannelli/relaxios --file <workflow>.yml --allow-publish
 ```
