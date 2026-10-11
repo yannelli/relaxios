@@ -1,6 +1,6 @@
 {
   "name": "relaxios",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A TypeScript port of axios 1.20.0 on native fetch, plus a small core client, stream progress and resumable uploads. No dependencies.",
   "license": "MIT",
   "repository": {
