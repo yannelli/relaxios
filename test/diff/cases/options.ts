@@ -1,4 +1,13 @@
+import { describeData } from '../observe';
 import { custom, type Case } from './shared';
+
+// How many of the 12 chunks of 100 bytes arrive before a stream is cut depends on scheduling,
+// so the bytes are reduced to whether the body was partial. The read error is still compared.
+async function partialStream(request: Promise<any>) {
+  const res = await request;
+  const { base64, ...data } = (await describeData(res.data)) as { base64?: string };
+  return custom({ status: res.status, data, partial: base64 !== undefined && atob(base64).length < 1200 });
+}
 
 // Adapter selection, errors raised before and after the request is sent, cancellation and headers.
 export const optionCases: Record<string, Case> = {
@@ -104,7 +113,8 @@ export const optionCases: Record<string, Case> = {
     return custom([reason.message, reason.code, source.token.reason === reason, typeof source.token.toAbortSignal]);
   },
   'timeout during slow body': (ax, { base }) => ax.get(base + '/slow?chunks=12&delay=50&size=100', { timeout: 400 }),
-  'timeout during slow body stream': (ax, { base }) => ax.get(base + '/slow?chunks=12&delay=50&size=100', { timeout: 400, responseType: 'stream' }),
+  'timeout during slow body stream': (ax, { base }) =>
+    partialStream(ax.get(base + '/slow?chunks=12&delay=50&size=100', { timeout: 400, responseType: 'stream' })),
   'timeout before first byte': (ax, { base }) => ax.get(base + '/slow?first=400&chunks=2&delay=10&size=10', { timeout: 150 }),
   'timeout longer than body': (ax, { base }) => ax.get(base + '/slow?chunks=3&delay=20&size=10', { timeout: 2000 }),
   'abort during slow body': (ax, { base }) => {
@@ -115,7 +125,7 @@ export const optionCases: Record<string, Case> = {
   'abort during slow body stream': (ax, { base }) => {
     const controller = new AbortController();
     setTimeout(() => controller.abort(), 200);
-    return ax.get(base + '/slow?chunks=12&delay=50&size=100', { signal: controller.signal, responseType: 'stream' });
+    return partialStream(ax.get(base + '/slow?chunks=12&delay=50&size=100', { signal: controller.signal, responseType: 'stream' }));
   },
   'cancel token during slow body': (ax, { base }) => {
     const source = ax.CancelToken.source();
