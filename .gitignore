@@ -5,3 +5,4 @@ test-results
 playwright-report
 *.log
 test/axios/.lib-es2018
+*.tgz
