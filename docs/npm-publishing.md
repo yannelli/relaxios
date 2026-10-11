@@ -12,10 +12,10 @@ workflow as a reusable job, then releases.
 2. **Publish semantic release.** `scripts/release.mjs --publish` picks the next version from the
    commit types since the last tag, updates `package.json` and `package-lock.json`, commits
    `chore(release): <version>`, tags `v<version>` and creates the GitHub release.
-3. **Publish npm package.** When npm does not have the version yet, the step builds, packs the
-   tarball, attaches it to the GitHub release and publishes it. Betas go to the `beta`
-   dist-tag and alphas to `alpha`, so `latest` only moves on `main`. If a publish fails, a
-   rerun finishes it.
+3. **Publish npm package.** When npm does not have the version yet, the step runs
+   `npm publish`, which builds through `prepublishOnly`. Betas go to the `beta` dist-tag and
+   alphas to `alpha`, so `latest` only moves on `main`. If a publish fails, a rerun finishes it.
+   GitHub releases are immutable once published, so no tarball is attached to them.
 
 The job grants `id-token: write`, and npm exchanges the OIDC token for a short-lived publish
 token (trusted publishing). The workflow reads no npm secret. npm generates provenance only for
@@ -51,10 +51,6 @@ The first version goes through the workflow too. Only the npm side is set up by 
 
 4. In the package **Settings**, set **Publishing access** to require 2FA and disallow tokens.
    The workflow publishes without a token.
-
-If a run fails at `npm publish`, the tarball is already attached to the GitHub release.
-`gh release download v<version> -R yannelli/relaxios -p 'relaxios-*.tgz'` and
-`npm publish <file>` finish it by hand, and the next run then skips the npm step.
 
 ## Renaming the workflow
 
