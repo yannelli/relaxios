@@ -1,0 +1,12 @@
+[
+  { "name": "core", "path": "dist/index.js", "import": "http", "gzip": true, "limit": "3 kB" },
+  { "name": "axios compat (own code, excludes core and progress)", "path": "dist/axios.js", "import": "axios", "ignore": ["fetchwire", "fetchwire/progress"], "gzip": true, "limit": "2.5 kB" },
+  { "name": "progress (all exports)", "path": "dist/progress.js", "import": "*", "gzip": true, "limit": "1.5 kB" },
+  { "name": "upload core", "path": "dist/upload.js", "import": "{ upload }", "ignore": ["fetchwire/progress"], "gzip": true, "limit": "3 kB" },
+  { "name": "upload + ietf", "path": "dist/upload.js", "import": "{ upload, ietf }", "ignore": ["fetchwire/progress"], "gzip": true },
+  { "name": "upload + s3Multipart", "path": "dist/upload.js", "import": "{ upload, s3Multipart }", "ignore": ["fetchwire/progress"], "gzip": true },
+  { "name": "upload + xhrSingle", "path": "dist/upload.js", "import": "{ upload, xhrSingle }", "ignore": ["fetchwire/progress"], "gzip": true },
+  { "name": "vue adapter (own code)", "path": "dist/vue.js", "import": "{ useUpload }", "ignore": ["fetchwire/upload", "vue"], "gzip": true },
+  { "name": "total: axios compat + core + progress", "path": "dist/axios.js", "import": "axios", "gzip": true },
+  { "name": "total: upload + all adapters + progress", "path": "dist/upload.js", "import": "*", "gzip": true }
+]

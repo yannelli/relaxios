@@ -1,0 +1,66 @@
+{
+  "name": "fetchwire",
+  "version": "0.1.0",
+  "description": "Fetch-native HTTP client with an axios-compatible API, stream progress, and resumable uploads.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20.3"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./axios": {
+      "types": "./dist/axios.d.ts",
+      "default": "./dist/axios.js"
+    },
+    "./progress": {
+      "types": "./dist/progress.d.ts",
+      "default": "./dist/progress.js"
+    },
+    "./upload": {
+      "types": "./dist/upload.d.ts",
+      "default": "./dist/upload.js"
+    },
+    "./vue": {
+      "types": "./dist/vue.d.ts",
+      "default": "./dist/vue.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "vue": "^3.3.0"
+  },
+  "peerDependenciesMeta": {
+    "vue": {
+      "optional": true
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "size": "node scripts/size-check.mjs",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@size-limit/preset-small-lib": "14.0.1",
+    "@types/node": "24.19.0",
+    "axios": "1.20.0",
+    "size-limit": "14.0.1",
+    "tsdown": "0.23.0",
+    "typescript": "7.0.2",
+    "vitest": "5.0.2",
+    "vue": "3.5.43"
+  }
+}
