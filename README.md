@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/hero.svg" alt="relaxios: HTTP for every JavaScript runtime, built on fetch" width="100%">
+  <img src="docs/assets/hero.svg" alt="relaxios: a TypeScript port of axios 1.20.0 on native fetch" width="100%">
 </p>
 
 # relaxios
