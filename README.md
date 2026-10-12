@@ -4,15 +4,15 @@
 
 # relaxios
 
-HTTP for every JavaScript runtime, built on the platform's own `fetch`, Web Streams and
-`AbortController`. No runtime dependencies, ESM first, TypeScript strict.
+A TypeScript port of axios 1.20.0 on native `fetch`, Web Streams and `AbortController`, with no
+dependencies.
 
 | Entry | What it is | Docs |
 | --- | --- | --- |
 | `relaxios/axios` | A drop-in replacement for axios 1.20.0 with the same API, types and behavior, checked against real axios in every runtime, with no dependencies. | [docs/axios.md](docs/axios.md) |
 | `relaxios` | A 2 kB client with the familiar shape (`get`, `post`, `create`, `defaults`, interceptors, `timeout`, `signal`) and fetch-native responses. | [docs/core.md](docs/core.md) |
 | `relaxios/progress` | Download and upload progress for `fetch`. A `TransformStream`, an event reducer with rate and time remaining, and an XHR-backed `fetch` for upload byte counts. | [docs/progress.md](docs/progress.md) |
-| `relaxios/upload` | Resumable chunked uploads over resumable uploads for HTTP (draft -12), S3 multipart or a single XHR request, with pause, resume, retries and server-confirmed progress. | [docs/upload.md](docs/upload.md) |
+| `relaxios/upload` | Chunked uploads over Resumable Uploads for HTTP (draft -12), S3 multipart or a single XHR request, with pause, resume, retries and server-confirmed progress. | [docs/upload.md](docs/upload.md) |
 
 Each entry is a separate build, and an app that imports only `relaxios/axios` ships only the port.
 
