@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">relaxios</title>
+  <desc id="desc">The relaxios mark: a lowercase r handing off a packet.</desc>
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2A2C33"/>
+      <stop offset="1" stop-color="#1E1F24"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(0 0) scale(4)">
+    <rect width="128" height="128" rx="30" fill="url(#tile)"/>
+    <rect x="0.75" y="0.75" width="126.5" height="126.5" rx="29.25" fill="none" stroke="#FAF7F2" stroke-opacity="0.12" stroke-width="1.5"/>
+    <path d="M36 94V66a24 24 0 0 1 24-24h4" fill="none" stroke="#FAF7F2" stroke-width="20" stroke-linecap="round"/>
+    <rect x="75" y="32" width="28" height="20" rx="10" fill="#36D7A7"/>
+  </g>
+</svg>

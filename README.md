@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/hero.svg" alt="relaxios: HTTP for every JavaScript runtime, built on fetch" width="100%">
+</p>
+
 # relaxios
 
 HTTP for every JavaScript runtime, built on the platform's own `fetch`, Web Streams and
